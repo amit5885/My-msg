@@ -6,15 +6,7 @@ import { usernameValidation } from "@/schemas/signupSchema";
 const UsernameQuerySchema = usernameValidation;
 export async function GET(request: Request) {
   await dbConnect();
-  if (request.method !== "GET") {
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Method not allowed",
-      },
-      { status: 405 },
-    );
-  }
+
   try {
     const { searchParams } = new URL(request.url);
     const queryParams = {
@@ -32,7 +24,6 @@ export async function GET(request: Request) {
             usernameErrors?.length > 0
               ? usernameErrors.join(", ")
               : "Invalid query parameters",
-          error: "Invalid query parameters",
         },
         { status: 400 },
       );
