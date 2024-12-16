@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useDebounceValue } from "usehooks-ts";
+import { useDebounceCallback } from "usehooks-ts";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { signinSchema } from "@/schemas/signinSchema";
+import { signupSchema } from "@/schemas/signupSchema";
 import axios, { AxiosError } from "axios";
 import { apiResponse } from "@/types/apiResponse";
 import {
@@ -20,22 +20,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
-const SigninPage = () => {
+const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [usernameMessage, setUsernameMessage] = useState("");
-  const [password, setPassword] = useState("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const debouncedUsername = useDebounceValue(username, 300);
+  const debounced = useDebounceCallback(setUsername, 300);
   const { toast } = useToast();
   const router = useRouter();
 
   //zod implementation
-  const form = useForm<z.infer<typeof signinSchema>>({
-    resolver: zodResolver(signinSchema),
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
     },
@@ -43,13 +44,13 @@ const SigninPage = () => {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debouncedUsername) {
+      if (username) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
 
         try {
           const response = await axios.get(
-            `/api/check-unique-user?username=${debouncedUsername}`,
+            `/api/check-unique-user?username=${username}`,
           );
           console.log(response);
           setUsernameMessage(response.data.message);
@@ -68,16 +69,16 @@ const SigninPage = () => {
     };
 
     checkUsernameUnique();
-  }, [debouncedUsername]);
+  }, [username]);
 
-  const onSubmit = async (data: z.infer<typeof signinSchema>) => {
+  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post<apiResponse>("/api/signin", data);
+      const response = await axios.post<apiResponse>("/api/signup", data);
       console.log(response);
       toast({
-        title: "Signin successful",
+        title: "Signup successful",
         description: response.data.message,
       });
       router.replace(`/veriy/${username}`);
@@ -85,7 +86,7 @@ const SigninPage = () => {
       if (err instanceof Error) {
         const axiosError = err as AxiosError<apiResponse>;
         toast({
-          title: "Signin failed",
+          title: "Signup failed",
           description: axiosError.response?.data.message,
           variant: "destructive",
         });
@@ -97,7 +98,7 @@ const SigninPage = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md space-y-8 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md space-y-8 bg-white rounded-lg shadow-lg p-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg-text-5xl mb-6">
             Join Mystry Message
@@ -108,7 +109,7 @@ const SigninPage = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-              name="Username"
+              name="username"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -117,12 +118,20 @@ const SigninPage = () => {
                     <Input
                       placeholder="Username"
                       {...field}
-                      onchange={(e) => {
+                      onChange={(e) => {
                         field.onChange(e);
-                        setUsername(e.target.value);
+                        debounced(e.target.value);
                       }}
                     />
                   </FormControl>
+                  {isCheckingUsername && <Loader2 className="animate-spin" />}
+                  {
+                    <p
+                      className={`text-sm ${usernameMessage === "Username is available" ? "text-green-500" : "text-red-500"}`}
+                    >
+                      {usernameMessage}
+                    </p>
+                  }
                   <FormMessage />
                 </FormItem>
               )}
@@ -167,9 +176,20 @@ const SigninPage = () => {
             </Button>
           </form>
         </Form>
+        <div>
+          <p>
+            Already have an account?{" "}
+            <Link
+              href="/signin"
+              className="text-blue-600 hover:text-blue-800 px-2"
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SigninPage;
+export default SignupPage;
