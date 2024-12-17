@@ -116,7 +116,7 @@ const SignupPage = () => {
                   <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Username"
+                      placeholder="username"
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
@@ -144,7 +144,7 @@ const SignupPage = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Email" {...field} />
+                    <Input placeholder="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,7 +158,7 @@ const SignupPage = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Password" {...field} />
+                    <Input placeholder="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
