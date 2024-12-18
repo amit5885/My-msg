@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Message from User456",
+    "content": "What’s your favorite way to relax after a long day?",
+    "received": "5 minutes ago"
+  },
+  {
+    "title": "Message from AdventureSeeker",
+    "content": "Your travel stories are amazing! Any tips for solo trips?",
+    "received": "1 hour ago"
+  },
+  {
+    "title": "Message from CuriousMind",
+    "content": "I’ve been thinking about starting a new hobby. Any suggestions?",
+    "received": "3 hours ago"
+  },
+  {
+    "title": "Message from BookLover",
+    "content": "What’s your all-time favorite book? I need some new reads!",
+    "received": "1 day ago"
+  },
+  {
+    "title": "Message from FutureArtist",
+    "content": "Your art style is so unique! How did you develop it?",
+    "received": "2 days ago"
+  }
+]

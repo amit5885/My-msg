@@ -4,7 +4,6 @@ import { Message } from "@/model/User";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import axios, { AxiosError } from "axios";
@@ -31,7 +30,7 @@ function DashboardPage() {
 
   const { data: session } = useSession();
 
-  const form = useForm<z.infer<typeof acceptMessageSchema>>({
+  const form = useForm({
     resolver: zodResolver(acceptMessageSchema),
   });
 
