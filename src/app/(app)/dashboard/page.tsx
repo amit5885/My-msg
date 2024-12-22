@@ -3,17 +3,17 @@ import { useState, useCallback, useEffect } from "react";
 import { Message } from "@/model/User";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
+import { User } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import axios, { AxiosError } from "axios";
 import { apiResponse } from "@/types/apiResponse";
-import { User } from "next-auth";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import MessageCard from "@/components/ui/MessageCard";
+import MessageCard from "@/components/MessageCard";
 
 function DashboardPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,13 +22,20 @@ function DashboardPage() {
 
   const { toast } = useToast();
 
-  const handleDeleteMessage = (messageId: string) => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((message) => message._id !== messageId),
-    );
-  };
-
   const { data: session } = useSession();
+
+  // const username = session?.user?.username;
+  const { username } = session?.user;
+  const baseUrl = `${window.location.protocol}//${window.location.host}}`;
+  const profileUrl = `${baseUrl}/u/${username}`;
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(profileUrl);
+    toast({
+      title: "Copied",
+      description: "Profile URL copied to clipboard",
+    });
+  };
 
   const form = useForm({
     resolver: zodResolver(acceptMessageSchema),
@@ -37,6 +44,13 @@ function DashboardPage() {
   const { register, watch, setValue } = form;
 
   const acceptMessages = watch("acceptMessages");
+
+  // optimistic ui
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message._id !== messageId),
+    );
+  };
 
   const fetchAcceptMessage = useCallback(async () => {
     setIsSwitchLoading(true);
@@ -120,20 +134,12 @@ function DashboardPage() {
     }
   };
 
-  const { username } = session?.user as User;
-  const baseUrl = `${window.location.protocol}//${window.location.host}}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileUrl);
-    toast({
-      title: "Copied",
-      description: "Profile URL copied to clipboard",
-    });
-  };
-
   if (!session || !session.user) {
-    return <div>Please Login</div>;
+    return (
+      <div className="container mx-auto w-full text-center flex  justify-center items-center h-screen text-2xl tracking-wide font-semibold">
+        Please Login
+      </div>
+    );
   }
 
   return (
