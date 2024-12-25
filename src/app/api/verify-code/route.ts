@@ -5,24 +5,26 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   await dbConnect();
   try {
-    const { username, verifyCode } = await request.json();
+    const { username, code } = await request.json();
+    console.log("------------  ", username, code);
 
     const decodedUsername = decodeURIComponent(username);
-    const decodedVerifyCode = decodeURIComponent(verifyCode);
+    const decodedVerifyCode = decodeURIComponent(code);
 
+    console.log(decodedUsername, decodedVerifyCode);
     const user = await UserModel.findOne({ username: decodedUsername });
 
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
     if (user.isVerified) {
       return NextResponse.json(
         { success: false, message: "User already verified" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
       await user.save();
       return NextResponse.json(
         { success: true, message: "User verified successfully" },
-        { status: 200 },
+        { status: 200 }
       );
     } else if (!isCodeNotExpired) {
       return NextResponse.json(
@@ -44,12 +46,12 @@ export async function POST(request: Request) {
           message:
             "Verification code has expired, please signup again to get a new code",
         },
-        { status: 400 },
+        { status: 400 }
       );
     } else {
       return NextResponse.json(
         { success: false, message: "Invalid verification code" },
-        { status: 400 },
+        { status: 400 }
       );
     }
   } catch (err) {
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json(
       { success: false, message: "Error verifying user" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -3,7 +3,6 @@ import { useState, useCallback, useEffect } from "react";
 import { Message } from "@/model/User";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
-import { User } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
@@ -24,9 +23,8 @@ function DashboardPage() {
 
   const { data: session } = useSession();
 
-  // const username = session?.user?.username;
-  const { username } = session?.user;
-  const baseUrl = `${window.location.protocol}//${window.location.host}}`;
+  const username = session?.user?.username;
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
   const copyToClipboard = () => {
@@ -58,7 +56,6 @@ function DashboardPage() {
       const response = await axios.get<apiResponse>("/api/accept-messages");
       setValue("acceptMessages", response.data.isAcceptingMessages ?? false);
     } catch (error) {
-      console.error(error);
       const axiosError = error as AxiosError<apiResponse>;
       toast({
         title: "Error",
@@ -78,7 +75,17 @@ function DashboardPage() {
       setIsSwitchLoading(false);
       try {
         const response = await axios.get<apiResponse>("/api/get-messages");
-        setMessages(response.data.messages || []);
+
+        if (response?.data?.messages?.length === 0) {
+          setMessages([]);
+          toast({
+            title: "No messages",
+            description: "No messages found",
+            variant: "destructive",
+          });
+        }
+        setMessages(response?.data?.messages ?? []);
+        console.log("______messages________", messages);
         if (refresh) {
           toast({
             title: "Refreshed Messages",
@@ -86,7 +93,6 @@ function DashboardPage() {
           });
         }
       } catch (error) {
-        console.error(error);
         const axiosError = error as AxiosError<apiResponse>;
         toast({
           title: "Error",
@@ -147,7 +153,7 @@ function DashboardPage() {
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{" "}
+        <h2 className="text-lg font-semibold mb-2">Copy Your Link</h2>{" "}
         <div className="flex items-center">
           <input
             type="text"

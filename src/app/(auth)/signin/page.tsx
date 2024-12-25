@@ -125,7 +125,7 @@ const SignupPage = () => {
               href="/signup"
               className="text-blue-600 hover:text-blue-800 px-2"
             >
-              Sign in
+              Sign up
             </Link>
           </p>
         </div>

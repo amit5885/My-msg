@@ -81,7 +81,7 @@ const SignupPage = () => {
         title: "Signup successful",
         description: response.data.message,
       });
-      router.replace(`/veriy/${username}`);
+      router.replace(`/verify/${username}`);
     } catch (err) {
       if (err instanceof Error) {
         const axiosError = err as AxiosError<apiResponse>;
