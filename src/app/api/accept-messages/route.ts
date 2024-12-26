@@ -11,19 +11,17 @@ export async function POST(request: Request) {
     if (!session?.user?.email) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const dbUser = await UserModel.findOne({ email: session.user.email });
     if (!dbUser) {
       return NextResponse.json(
-        { success: false, message: "User not found || accept-messages_error" },
-        { status: 404 }
+        { success: false, message: "User not found" },
+        { status: 404 },
       );
     }
-
-    console.log("----user---------:", dbUser);
 
     const { acceptMessages } = await request.json();
 
@@ -32,12 +30,12 @@ export async function POST(request: Request) {
       {
         isAcceptingMessages: acceptMessages,
       },
-      { new: true }
+      { new: true },
     );
     if (!updatedUser) {
       return NextResponse.json(
         { success: false, message: "Falied to update user to accept messages" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -46,7 +44,7 @@ export async function POST(request: Request) {
         success: true,
         message: "User Message acceptance status updated successfully",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     if (err instanceof Error) {
@@ -56,7 +54,7 @@ export async function POST(request: Request) {
           message:
             "failed to update user status to accept messages " + err.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -69,15 +67,15 @@ export async function GET(request: Request) {
     if (!session?.user?.email) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const dbUser = await UserModel.findOne({ email: session.user.email });
     if (!dbUser) {
       return NextResponse.json(
-        { success: false, message: "User not found || accept-messages_error" },
-        { status: 404 }
+        { success: false, message: "User not found" },
+        { status: 404 },
       );
     }
 
@@ -86,7 +84,7 @@ export async function GET(request: Request) {
         success: true,
         isAcceptingMessages: dbUser.isAcceptingMessages,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     if (err instanceof Error) {
@@ -96,7 +94,7 @@ export async function GET(request: Request) {
           message:
             "failed to get user status to accept messages " + err.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }

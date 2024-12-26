@@ -11,15 +11,15 @@ export async function GET() {
     if (!session?.user?.email) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const dbUser = await UserModel.findOne({ email: session.user.email });
     if (!dbUser) {
       return NextResponse.json(
-        { success: false, message: "User not found || get-messages_error" },
-        { status: 404 }
+        { success: false, message: "User not found" },
+        { status: 404 },
       );
     }
 
@@ -34,20 +34,20 @@ export async function GET() {
 
     if (!user || user.length === 0) {
       return NextResponse.json(
-        { success: false, message: "User not found || get-messages_error" },
-        { status: 404 }
+        { success: false, message: "No messages found" },
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { success: true, messages: user[0].messages },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     if (err instanceof Error) {
       return NextResponse.json(
         { success: false, message: "Failed to get messages: " + err.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
