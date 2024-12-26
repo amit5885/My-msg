@@ -22,33 +22,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCompletion } from "ai/react";
 import Link from "next/link";
 
 const UserPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSuggestLoading, setIsSuggestLoading] = useState<boolean>(false);
+  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([
+    "What's a book, movie, or song that has had a lasting impact on you?",
+    "If you could instantly learn any new skill, what would it be and why?",
+    "What's something you've always wanted to try but haven't yet, and what's holding you back?",
+  ]);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-
-  const initialMsg =
-    "What’s a book, movie, or song that has had a lasting impact on you?||If you could instantly learn any new skill, what would it be and why?||What’s something you’ve always wanted to try but haven’t yet, and what’s holding you back?";
-
-  const parseMessage = (message: string): string[] => {
-    return message.split("||");
-  };
 
   const params = useParams<{ username: string }>();
   const username = params.username;
-
-  // handling suggest messages
-  const {
-    complete,
-    completion,
-    isLoading: isSuggestLoading,
-    error,
-  } = useCompletion({
-    api: "/api/suggest-messages",
-    initialCompletion: initialMsg,
-  });
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -67,11 +55,12 @@ const UserPage = () => {
         ...data,
         username,
       });
-
-      toast({
-        title: response.data.message,
-        variant: "default",
-      });
+      if (response) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+      }
       form.reset({ ...form.getValues(), content: "" });
     } catch (error) {
       const axiosError = error as AxiosError<apiResponse>;
@@ -87,22 +76,29 @@ const UserPage = () => {
   };
 
   const fetchSuggestedMessages = async () => {
+    setIsSuggestLoading(true);
     try {
-      complete("");
+      const response = await axios.post("/api/suggest-messages");
+      const messages = response.data.text
+        .split("||")
+        .map((msg: string) => msg.trim());
+      setSuggestedMessages(messages);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      setError(error instanceof Error ? error.message : "Unknown error");
       // Handle error appropriately
       toast({
         title: "Error",
         description: "Failed to fetch messages",
         variant: "destructive",
       });
+    } finally {
+      setIsSuggestLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen ">
-      <h1 className="text-4xl font-bold tracking-tight text-primary">
+    <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
+      <h1 className="text-4xl font-bold text-center mb-6 tracking-tight text-primary">
         Public Profile Link
       </h1>
 
@@ -136,8 +132,8 @@ const UserPage = () => {
         </form>
       </Form>
 
-      <div className="mt-6 w-full flex flex-col justify-center items-center space-y-4">
-        <div>
+      <div className="my-6 space-y-4">
+        <div className="space-y-2">
           <Button
             onClick={() => {
               fetchSuggestedMessages();
@@ -145,7 +141,14 @@ const UserPage = () => {
             disabled={isSuggestLoading}
             className="my-4"
           >
-            Suggest Messages
+            {isSuggestLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading Suggestion...
+              </>
+            ) : (
+              <>Suggest Messages</>
+            )}
           </Button>
         </div>
         <p className="text-sm font-medium ">
@@ -157,9 +160,15 @@ const UserPage = () => {
           </CardHeader>
           <CardContent className="flex flex-col space-y-4">
             {error ? (
-              <p className="text-red-500">{error.message}</p>
+              <p className="text-red-500">{error}</p>
+            ) : isSuggestLoading ? (
+              <>
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </>
             ) : (
-              parseMessage(completion).map((message, index) => (
+              suggestedMessages.map((message, index) => (
                 <Button
                   key={index}
                   variant="outline"

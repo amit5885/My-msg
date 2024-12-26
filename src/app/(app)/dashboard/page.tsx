@@ -46,7 +46,7 @@ function DashboardPage() {
   // optimistic ui
   const handleDeleteMessage = (messageId: string) => {
     setMessages((prevMessages) =>
-      prevMessages.filter((message) => message._id !== messageId),
+      prevMessages.filter((msg) => msg._id !== messageId),
     );
   };
 
@@ -85,7 +85,6 @@ function DashboardPage() {
           });
         }
         setMessages(response?.data?.messages ?? []);
-        console.log("______messages________", messages);
         if (refresh) {
           toast({
             title: "Refreshed Messages",
