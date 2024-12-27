@@ -6,16 +6,16 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 
 export async function DELETE(
   request: Request,
-  context: { params: { messageid: string } }
+  { params }: { params: Promise<{ messageid: string }> },
 ) {
   await dbConnect();
-  const messageId = context.params.messageid;
+  const { messageid } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || !session?.user?.email) {
     return NextResponse.json(
       { success: false, message: "Not authenticated" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -24,24 +24,24 @@ export async function DELETE(
     if (!dbUser) {
       return NextResponse.json(
         { success: false, message: "User not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const updateResult = await UserModel.updateOne(
       { _id: dbUser._id },
-      { $pull: { messages: { _id: messageId } } }
+      { $pull: { messages: { _id: messageid } } },
     );
 
     if (updateResult.modifiedCount === 0) {
       return NextResponse.json(
         { success: false, message: "Message not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     return NextResponse.json(
       { success: true, message: "Message deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     if (err instanceof Error) {
@@ -50,7 +50,7 @@ export async function DELETE(
 
     return NextResponse.json(
       { success: false, message: "Error deleting message" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
