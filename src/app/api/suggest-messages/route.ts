@@ -17,7 +17,7 @@ const categories = [
   "simple pleasures",
 ];
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const selectedCategories = categories
       .sort(() => Math.random() - 0.5)
