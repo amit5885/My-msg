@@ -9,7 +9,7 @@ export async function DELETE(
   { params }: { params: { messageid: string } },
 ) {
   await dbConnect();
-  const { messageid: messageId } = params;
+  const messageId = params.messageid;
   const session = await getServerSession(authOptions);
 
   if (!session || !session?.user?.email) {
