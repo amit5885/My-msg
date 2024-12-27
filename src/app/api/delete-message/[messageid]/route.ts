@@ -4,15 +4,18 @@ import UserModel from "@/model/User";
 import { NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/options";
 
-export async function DELETE(context: { params: { messageid: string } }) {
+export async function DELETE(
+  request: Request,
+  context: { params: { messageid: string } }
+) {
   await dbConnect();
-  const { messageid } = context.params;
+  const messageId = context.params.messageid;
   const session = await getServerSession(authOptions);
 
   if (!session || !session?.user?.email) {
     return NextResponse.json(
       { success: false, message: "Not authenticated" },
-      { status: 401 },
+      { status: 401 }
     );
   }
 
@@ -21,24 +24,24 @@ export async function DELETE(context: { params: { messageid: string } }) {
     if (!dbUser) {
       return NextResponse.json(
         { success: false, message: "User not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
     const updateResult = await UserModel.updateOne(
       { _id: dbUser._id },
-      { $pull: { messages: { _id: messageid } } },
+      { $pull: { messages: { _id: messageId } } }
     );
 
     if (updateResult.modifiedCount === 0) {
       return NextResponse.json(
         { success: false, message: "Message not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
     return NextResponse.json(
       { success: true, message: "Message deleted successfully" },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (err) {
     if (err instanceof Error) {
@@ -47,7 +50,7 @@ export async function DELETE(context: { params: { messageid: string } }) {
 
     return NextResponse.json(
       { success: false, message: "Error deleting message" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
