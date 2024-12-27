@@ -24,8 +24,12 @@ function DashboardPage() {
   const { data: session } = useSession();
 
   const username = session?.user?.username;
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
+  const [profileUrl, setProfileUrl] = useState("");
+
+  useEffect(() => {
+    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    setProfileUrl(`${baseUrl}/u/${username}`);
+  }, [username]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);
