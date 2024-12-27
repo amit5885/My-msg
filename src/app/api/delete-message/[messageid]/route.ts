@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/options";
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { messageid: string } },
 ) {
   await dbConnect();
