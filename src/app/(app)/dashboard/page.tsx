@@ -50,7 +50,7 @@ function DashboardPage() {
   // optimistic ui
   const handleDeleteMessage = (messageId: string) => {
     setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg._id !== messageId),
+      prevMessages.filter((msg) => msg._id?.toString() !== messageId),
     );
   };
 
@@ -199,7 +199,7 @@ function DashboardPage() {
         {messages.length > 0 ? (
           messages.map((message) => (
             <MessageCard
-              key={message._id as string}
+              key={message._id?.toString()}
               message={message}
               onMessageDelete={handleDeleteMessage}
             />

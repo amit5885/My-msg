@@ -37,7 +37,7 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
         title: result.data.message,
       });
 
-      onMessageDelete(message._id as string);
+      onMessageDelete(message._id?.toString() ?? "");
     } catch (error) {
       const axiosError = error as AxiosError<apiResponse>;
       toast({
